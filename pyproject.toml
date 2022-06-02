@@ -6,6 +6,9 @@ authors = ["Nicholas Car <nick@kurrawong.net>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+jupyter = "^1.0.0"
+httpx = "^0.23.0"
+tabulate = "^0.8.9"
 
 [tool.poetry.dev-dependencies]
 
