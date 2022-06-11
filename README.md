@@ -1,8 +1,8 @@
-# SpacePrez Explorer
+# Digital Atlas API Clients
 
-This repository contains Jupyter Notebooks that act as clients of [SpacePrez](https://github.com/surroundaustralia/Prez/) APIs.
+This repository contains Jupyter Notebooks and web pages that act as clients of Linked Data APIs established as part of the Digital Atlas of Australia.
 
-SpacePrez APIs implement both [OGC API](https://ogcapi.ogc.org/) and [Linked Data API](https://www.w3.org/standards/semanticweb/data) standards for the delivery of spatial data on the Web. 
+The technical targets of these clients are [SpacePrez](https://github.com/surroundaustralia/Prez/) APIs which are 2nd-generation [Location Index (LocI)](http://ga.gov.au/locationindex) APIs. SpacePrez APIs implement [OGC API](https://ogcapi.ogc.org/), [Linked Data API](https://www.w3.org/standards/semanticweb/data) and [SPARQL Protocol](https://www.w3.org/TR/sparql11-protocol/) standards for the delivery of spatial data on the Web. These clients demonstrate use of all three.
 
 
 ## Particular APIs
