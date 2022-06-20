@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IderDown</title>
+    <script src="https://kit.fontawesome.com/c112c4b9c0.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        .quote {
+            font-style: italic;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IderDown</h1>
+        <p>This web page emulates a software client of the <a href="http://ga.gov.au/locationindex">Location Index</a> project called <a href="http://loci.cat/iderDown.html">IderDown</a>. IderDown allows you to select a containing Feature from LocI and then ask for all the ID of all other Features of a given class, within that Feature.</p>
+        <p>For example:</p>
+        <p class="quote">Get all of the Statistical Area 2s within Statistical Area 3 10201</p>
+        <p>or</p>
+        <p class="quote">Get all of the Mesh Blocks within Contracted Catchment 12345</p>
+        <p>The procedure to do this is:</p>
+        <ol>
+            <li>Select the LocI API you want to work with</li>
+            <li>Identify the containing Feature</li>
+            <li>Select the contained Feature Class</li>
+        </ol>
+        <p>Work through each of those steps below.</p>
+        <h4>1. Select the LocI API you want to work with</h4>
+        <div class="my-3">
+            <!--<label for="server">DAA API:</label> <input type="text" id="server">-->
+            <select id="server">
+                <option value="https://asgs.linked.fsdf.org.au">ASGS</option>
+                <option value="https://linked.fsdf.org.au">FSDF</option>
+                <option value="https://geofabric.linked.fsdf.org.au">Geofabric</option>
+                <option value="https://gnaf.linked.fsdf.org.au">G-NAF</option>
+                <option value="https://cache.linked.fsdf.org.au">All (cache)</option>
+            </select>
+        </div>
+        <h4>2. Identify the containing Feature</h4>
+        <input type="text" id="containingFeature" style="width:400px;"/>
+        <p style="font-size:smaller">
+            Examples:<br />
+            An SA3: <code>https://linked.data.gov.au/dataset/asgsed3/SA3/10201</code><br />
+            An SA2: <code>https://linked.data.gov.au/dataset/asgsed3/SA2/102011028</code><br />
+        </p>
+        <div class="my-3">
+            <button type="button" id="test" class="btn btn-primary" onclick="get_contained_fcs()">Check available contained classes</button>
+        </div>
+        <textarea id="containedClasses" style="display:none; width:600px; height:100px; font-family:monospace"></textarea>
+        <h4>3. Select the contained Feature Class</h4>
+        <p><em>(Copy and paste one of the results from above)</em></p>
+        <input type="text" id="fcIri" style="width:400px;"/>
+        <div class="my-3">
+            <p>Set a limit (of the number of results returned):</p>
+            <input type="text" id="limit" style="width:50px;"/>
+        </div>
+        <div class="my-3">
+            <button type="button" id="gc" class="btn btn-primary" onclick="get_contained()">Get Contained</button>
+        </div>
+        <textarea id="results" style="display:none; width:600px; height:100px; font-family:monospace"></textarea>
+        <p></p>
+        <p></p>
+        <script>
+            window.onload = function() {
+                document.getElementById('containingFeature').value = ''
+                document.getElementById('fcIri').value = ''
+                document.getElementById('containedClasses').value = ''
+                document.getElementById('limit').value = '5'
+            }
+            
+            let containedClasses = {
+                'https://linked.data.gov.au/dataset/asgsed3/MB': [],
+                'https://linked.data.gov.au/dataset/asgsed3/SA1': [
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+                'https://linked.data.gov.au/dataset/asgsed3/SA2': [
+                    'https://linked.data.gov.au/dataset/asgsed3/SA1',
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+                'https://linked.data.gov.au/dataset/asgsed3/SA3': [
+                    'https://linked.data.gov.au/dataset/asgsed3/SA2',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA1',
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+                'https://linked.data.gov.au/dataset/asgsed3/SA4': [
+                    'https://linked.data.gov.au/dataset/asgsed3/SA3',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA2',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA1',
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+                'https://linked.data.gov.au/dataset/asgsed3/STE': [
+                    'https://linked.data.gov.au/dataset/asgsed3/SA4',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA3',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA2',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA1',
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+                'https://linked.data.gov.au/dataset/asgsed3/AUS': [
+                    'https://linked.data.gov.au/dataset/asgsed3/STE',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA4',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA3',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA2',
+                    'https://linked.data.gov.au/dataset/asgsed3/SA1',
+                    'https://linked.data.gov.au/dataset/asgsed3/MB',
+                    ],
+            }
+
+            async function spql(url, query) {
+                console.log('querying ' + url)
+                let url2 = new URL(url)
+                url2.searchParams.append("query", query)
+                let options = {
+                    headers: {
+                        'Content-Type': 'application/sparql-results+json',
+                    },
+                }
+
+                let response = await fetch(url2, options)
+
+                if (response.ok) {
+                    return await response.json()
+                } else {
+                    alert("HTTP-Error: " + response.status)
+                }
+            }
+
+            function get_endpoint() {
+                let v = document.getElementById('server').value
+                if (!v) {
+                    alert('Please enter an API endpoint')
+                    return null
+                } else {
+                    return v.endsWith('/') ? v = v + 'sparql' : v = v + '/sparql'
+                }
+            }
+
+            function get_container_iri() {
+                let v = document.getElementById('containingFeature').value
+                if (!v) {
+                    alert('Please enter an Object IRI value')
+                    return null
+                } else {
+                    return v
+                }
+            }
+
+            function get_fc_iri() {
+                let v = document.getElementById('fcIri').value
+                if (!v) {
+                    alert('Please enter a Feature Collection IRI value')
+                    return null
+                } else {
+                    return v
+                }
+            }
+
+            async function get_contained_fcs() {
+                document.getElementById('containedClasses').style.display = 'none'
+                document.getElementById('containedClasses').value = ''
+
+                console.log('get_contained_fcs()')
+                let endpoint = get_endpoint()
+                let object_iri = get_container_iri()
+                console.log(endpoint)
+                console.log(object_iri)
+                if (!endpoint || !object_iri) {
+                    return null
+                }
+
+                let q = `PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+                         SELECT ?fc
+                         WHERE {
+                           ?fc rdfs:member <${object_iri}>
+                         }`
+                let r = await spql(endpoint, q)
+                if (r['results']['bindings'].length > 0) {
+                    let cls = r['results']['bindings'][0].fc['value']
+                    containedClasses[cls].forEach(function(obj) {
+                        document.getElementById('containedClasses').value += obj + '\n'
+                    });
+                    document.getElementById('containedClasses').style.display = 'block'
+                }
+            }
+
+            async function get_contained() {
+                let res = document.getElementById("results")
+                res.style.display = 'none'
+                res.value = ''
+
+                let url = get_endpoint()
+                let containerIri = get_container_iri()
+                let featureCollection = get_fc_iri()
+                let limit = document.getElementById("limit").value
+                if (!limit) limit = 5
+
+                let q = `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+                         PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+                         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+                         SELECT ?f
+                         WHERE {
+                           <${containerIri}> geo:hasGeometry/geo:asWKT ?container .
+
+                           <${featureCollection}> rdfs:member ?f .
+                           ?f geo:hasGeometry/geo:asWKT ?wkt .
+
+                           FILTER (geof:sfWithin(?wkt, ?container))
+                         }
+                         LIMIT ${limit}`
+                console.log(q)
+                let r = await spql(url, q)
+                r['results']['bindings'].forEach(obj => {
+                    Object.entries(obj).forEach(([key, value]) => {
+                        res.value += `${value['value']}\n`
+                    })
+                });
+
+                res.style.display = 'block'
+            }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </div>
+</body>
+</html>
