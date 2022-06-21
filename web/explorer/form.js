@@ -41,13 +41,13 @@ function get_endpoint() {
 }
 
 function make_query_restrictions() {
-    let dataset_restrictions = []
-    const cbxs = document.querySelectorAll('.restriction-dataset')
-    for (var i = 0; i < cbxs.length; i++) {
-        if (cbxs[i].checked) {
-            dataset_restrictions.push(`<${cbxs[i].id}> rdfs:member/rdfs:member ?f .`)
-        }
-    }
+    // let dataset_restrictions = []
+    // const cbxs = document.querySelectorAll('.restriction-dataset')
+    // for (var i = 0; i < cbxs.length; i++) {
+    //     if (cbxs[i].checked) {
+    //         dataset_restrictions.push(`<${cbxs[i].id}> rdfs:member/rdfs:member ?f .`)
+    //     }
+    // }
 
     let fc_restrictions = []
     const cbxs2 = document.querySelectorAll('.restriction-fc')
@@ -57,17 +57,12 @@ function make_query_restrictions() {
         }
     }
 
-    let ds = '{ ' + dataset_restrictions.join('}\n    UNION\n    {') + ' }'
-    let fc = '    { ' + fc_restrictions.join('}\n    UNION\n    {') + ' }'
-
-    let all = ''
-    if (ds) {
-        all += ds
+    // let ds = '{ ' + dataset_restrictions.join('}\n    UNION\n    {') + ' }'
+    if (fc_restrictions.length > 0) {
+        return '\n    { ' + fc_restrictions.join('}\n    UNION\n    {') + ' }\n'
+    } else {
+        return ''
     }
-    if (fc) {
-        all += '\n\n' + fc
-    }
-    return all
 }
 
 export async function search() {
@@ -76,6 +71,13 @@ export async function search() {
         alert("You have not marked a point or a square on the map!")
     } else {
         let endpoint = 'http://asgs.linked.fsdf.org.au/sparql'
+
+        let geosparql;
+        if (shape.includes('POINT')) {
+            geosparql = `    FILTER (geof:sfWithin("${shape}", ?wkt))`
+        } else {
+            geosparql = `    FILTER (geof:sfContains("${shape}", ?wkt))`
+        }
 
         let q =
 `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
@@ -86,10 +88,8 @@ SELECT ?c
 WHERE {
     ?f a geo:Feature ;
        geo:hasGeometry/geo:asWKT ?wkt .
-
-    ${make_query_restrictions()}
-
-    FILTER (geof:sfWithin(?wkt, "${shape}"))
+${make_query_restrictions()}
+${geosparql}
 }`
 
         if (document.getElementById('queryOnly').checked) {

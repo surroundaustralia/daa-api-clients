@@ -25,14 +25,14 @@ function initMap() {
         drawingControlOptions: {
             position: google.maps.ControlPosition.TOP_CENTER,
             drawingModes: [
+                google.maps.drawing.OverlayType.MARKER,
                 google.maps.drawing.OverlayType.RECTANGLE,
                 // google.maps.drawing.OverlayType.POLYGON,
-                google.maps.drawing.OverlayType.MARKER,
             ],
         },
+        markerOptions: markerOptions,
         rectangleOptions: shapeOptions,
         // polygonOptions: shapeOptions,
-        markerOptions: markerOptions,
     });
     drawingManager.setMap(m);
 
@@ -73,9 +73,10 @@ function initMap() {
     let pointToWKT = (coord) => {
         return `POINT (${coord[0]} ${coord[1]})`;
     }
-    let onPointDraw = (point) => {
+    let onPointDraw = (pnt) => {
         clearShapes()
-        let coord = [point.getPosition().lng(), point.getPosition().lat()]
+        this.point = pnt
+        let coord = [pnt.getPosition().lng(), pnt.getPosition().lat()]
         let wkt = pointToWKT(coord)
         shape = wkt
         console.log(wkt)
