@@ -40,7 +40,7 @@ function get_endpoint() {
     }
 }
 
-function make_query_restrictions() {
+function make_query_fcs() {
     // let dataset_restrictions = []
     // const cbxs = document.querySelectorAll('.restriction-dataset')
     // for (var i = 0; i < cbxs.length; i++) {
@@ -65,6 +65,21 @@ function make_query_restrictions() {
     }
 }
 
+function make_query_topo_filter() {
+    let geosparql;
+    if (shape.includes('POINT')) {
+        geosparql = `    FILTER (geof:sfWithin("${shape}", ?wkt))`
+    } else {
+        if (document.getElementById('spatial-contains').checked) {
+            geosparql = `    FILTER (geof:sfContains("${shape}", ?wkt))`
+        } else {
+            geosparql = `    FILTER (geof:sfOverlaps("${shape}", ?wkt))`
+        }
+    }
+
+    return geosparql
+}
+
 export async function search() {
     document.getElementById('resultsList').style.display = 'none';
     if (!shape) {
@@ -72,24 +87,17 @@ export async function search() {
     } else {
         let endpoint = 'http://asgs.linked.fsdf.org.au/sparql'
 
-        let geosparql;
-        if (shape.includes('POINT')) {
-            geosparql = `    FILTER (geof:sfWithin("${shape}", ?wkt))`
-        } else {
-            geosparql = `    FILTER (geof:sfContains("${shape}", ?wkt))`
-        }
-
         let q =
 `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?c
+SELECT ?f
 WHERE {
     ?f a geo:Feature ;
        geo:hasGeometry/geo:asWKT ?wkt .
-${make_query_restrictions()}
-${geosparql}
+${make_query_fcs()}
+${make_query_topo_filter()}
 }`
 
         if (document.getElementById('queryOnly').checked) {
@@ -118,6 +126,10 @@ function reset() {
     document.getElementById('queryOnly').checked = false
 
     document.getElementById('resultsList').style.display = 'none'
+
+    document.getElementById('spatial-contains').checked = true
+
+    document.getElementById('queryOnly').checked = true
 }
 
 window.check = check

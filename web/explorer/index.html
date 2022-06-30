@@ -13,34 +13,54 @@
     <div id="container" style="margin: 0 5px 0 5px;">
         <h1>Digital Atlas Data API Explorer</h1>
         <div style="display:grid; grid-template-columns:65% 35%; max-width:99%;">
-            <div id="map" style="grid-column:1; min-height:300px; height:700px;"></div>
+            <div id="map" style="grid-column:1;"></div>
             <div id="form" style="grid-column:2; min-width:300px; max-width:450px; padding-left:10px; background-color: #eee;">
-                <h4>1. Mark area</h4>
-                <p>Use the map to the left to mark a point or a square area to search with.</p>
-                <h4>2. Filter</h4>
-                <p>Select the classes of object you wish to search for. You may select multiple.</p>
-                <p>
-                    <input id="https://linked.data.gov.au/dataset/asgsed3" type="checkbox" class="restriction-dataset" onchange="check(this, 'asgs')" /> ASGS<br />
-                    <input id="https://linked.data.gov.au/dataset/asgsed3/SA4" type="checkbox" class="restriction-fc asgs" /> SA4s<br />
-                    <input id="https://linked.data.gov.au/dataset/asgsed3/SA3" type="checkbox" class="restriction-fc asgs" /> SA3s<br />
-                    <input id="https://linked.data.gov.au/dataset/asgsed3/SA2" type="checkbox" class="restriction-fc asgs" /> SA2s<br />
-                    <input id="https://linked.data.gov.au/dataset/asgsed3/SA1" type="checkbox" class="restriction-fc asgs" /> SA1s<br />
-                    <input id="https://linked.data.gov.au/dataset/asgsed3/MB" type="checkbox" class="restriction-fc asgs" /> Mesh Blocks
-                </p>
-                <p>
-                    <input id="https://linked.data.gov.au/dataset/geofabric" type="checkbox" class="restriction-dataset" onchange="check(this, 'geofabric')" /> Geofabric<br />
-                    <input id="https://linked.data.gov.au/dataset/geofabric/fc/drainagedivisions" type="checkbox" class="restriction-fc geofabric" /> Drainage Divisions<br />
-                    <input id="https://linked.data.gov.au/dataset/geofabric/fc/riverregions" type="checkbox" class="restriction-fc geofabric" /> River Regions<br />
-                    <input id="https://linked.data.gov.au/dataset/geofabric/fc/catchments" type="checkbox" class="restriction-fc geofabric" /> Contracted Catchments
-                </p>
-                <p>
-                    <input id="https://linked.data.gov.au/dataset/gnaf" type="checkbox" class="restriction-dataset" onchange="check(this, 'gnaf')" /> G-NAF<br />
-                    <input id="https://linked.data.gov.au/dataset/gnaf/address" type="checkbox" class="restriction-fc gnaf" /> Addresses<br />
-                    <input id="https://linked.data.gov.au/dataset/gnaf/streetLocality" type="checkbox" class="restriction-fc gnaf" /> Street Localities<br />
-                    <input id="https://linked.data.gov.au/dataset/gnaf/locality" type="checkbox" class="restriction-fc gnaf" /> Localities
-                </p>
-                <p style="font-size:smaller;"><input id="queryOnly" type="checkbox" /> Just show query, do not execute<br /></p>
-                <button onclick="search()">Search for objects</button>
+                <h4>1. Location</h4>
+                <p>Mark a point or a bounding box on the map or <em>or</em> enter the IRI of an FSDF Feature to use its geometry.</p>
+                <input id="location-feature" type="text" style="width:400px" placeholder="https://linked.data.gov.au/dataset/..." />
+                <h4>2. Feature Collections</h4>
+                <p>Select Feature Collections you wish to search within.</p>
+                <div style="display:grid; grid-template-columns: 50% 50%;">
+                    <div>
+                        <p>
+                            <input id="https://linked.data.gov.au/dataset/asgsed3" type="checkbox" class="restriction-dataset" onchange="check(this, 'asgs')" /> ASGS<br />
+                            <input id="https://linked.data.gov.au/dataset/asgsed3/SA4" type="checkbox" class="restriction-fc asgs" /> SA4s<br />
+                            <input id="https://linked.data.gov.au/dataset/asgsed3/SA3" type="checkbox" class="restriction-fc asgs" /> SA3s<br />
+                            <input id="https://linked.data.gov.au/dataset/asgsed3/SA2" type="checkbox" class="restriction-fc asgs" /> SA2s<br />
+                            <input id="https://linked.data.gov.au/dataset/asgsed3/SA1" type="checkbox" class="restriction-fc asgs" /> SA1s<br />
+                            <input id="https://linked.data.gov.au/dataset/asgsed3/MB" type="checkbox" class="restriction-fc asgs" /> Mesh Blocks
+                        </p>
+                        <p>
+                            <input id="https://linked.data.gov.au/dataset/geofabric" type="checkbox" class="restriction-dataset" onchange="check(this, 'geofabric')" /> Geofabric<br />
+                            <input id="https://linked.data.gov.au/dataset/geofabric/fc/drainagedivisions" type="checkbox" class="restriction-fc geofabric" /> Drainage Divisions<br />
+                            <input id="https://linked.data.gov.au/dataset/geofabric/fc/riverregions" type="checkbox" class="restriction-fc geofabric" /> River Regions<br />
+                            <input id="https://linked.data.gov.au/dataset/geofabric/fc/catchments" type="checkbox" class="restriction-fc geofabric" /> Contracted Catchments
+                        </p>
+                    </div>
+                    <div>
+                        <p>
+                            <input id="https://linked.data.gov.au/dataset/fsdf" type="checkbox" class="restriction-dataset" onchange="check(this, 'fsdf')" /> FSDF<br />
+                            <input id="https://linked.data.gov.au/dataset/fsdf/SA4" type="checkbox" class="restriction-fc fsdf" /> SA4s<br />
+                            <input id="https://linked.data.gov.au/dataset/fsdf/SA3" type="checkbox" class="restriction-fc fsdf" /> SA3s<br />
+                            <input id="https://linked.data.gov.au/dataset/fsdf/SA2" type="checkbox" class="restriction-fc fsdf" /> SA2s<br />
+                            <input id="https://linked.data.gov.au/dataset/fsdf/SA1" type="checkbox" class="restriction-fc fsdf" /> SA1s<br />
+                            <input id="https://linked.data.gov.au/dataset/fsdf/MB" type="checkbox" class="restriction-fc fsdf" /> Mesh Blocks
+                        </p>
+                        <p>
+                            <input id="https://linked.data.gov.au/dataset/gnaf" type="checkbox" class="restriction-dataset" onchange="check(this, 'gnaf')" /> G-NAF<br />
+                            <input id="https://linked.data.gov.au/dataset/gnaf/address" type="checkbox" class="restriction-fc gnaf" /> Addresses<br />
+                            <input id="https://linked.data.gov.au/dataset/gnaf/streetLocality" type="checkbox" class="restriction-fc gnaf" /> Street Localities<br />
+                            <input id="https://linked.data.gov.au/dataset/gnaf/locality" type="checkbox" class="restriction-fc gnaf" /> Localities
+                        </p>
+                    </div>
+                </div>
+                <h4>4. Spatial relation</h4>
+                <p>Points on the map will be search for <em>within</em>, Features' geometry.</p>
+                <p>If you've drawn a bounding box, which relation do you want:</p>
+                <input id="spatial-contains" type="radio" name="spatial" checked /> <label for="spatial-contains">contains</label> <span style="font-size:smaller;">- Features' geometry fully contained by the box</span><br />
+                <input id="spatial-overlaps" type="radio" name="spatial" /> <label for="spatial-overlaps">overlaps</label> <span style="font-size:smaller;">- Features' geometry overlapped by the box</span>
+                <p style="font-size:smaller;"><input id="queryOnly" type="checkbox" checked /> Just show query, do not execute<br /></p>
+                <button onclick="search()">Search for Features</button>
                 <button onclick="reset()">Reset</button>
                 <p></p>
             </div>
