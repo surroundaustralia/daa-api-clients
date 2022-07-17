@@ -32,7 +32,7 @@ These Notebooks are aimed at two things:
 
 These Notebooks can be run locally, if you have a Jupyter Notebooks setup on your desktop, or they can be run online using:
 
-XXXXXXX
+* https://mybinder.org/v2/gh/surroundaustralia/daa-api-clients/fcbb9d511a6f441f8cd65c19af4ee3d2de5a8f08?urlpath=lab%2Ftree%2Fnotebooks%2FIderDown.ipynb
 
 To run locally, you will need a [Python Poetry](https://python-poetry.org/) environment established and then to run the Jupyter server.
 
