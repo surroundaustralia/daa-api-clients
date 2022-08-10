@@ -1,3 +1,5 @@
+## ARCHIVED: use https://github.com/GeoscienceAustralia/daa-api-clients
+
 # Digital Atlas API Clients
 
 This repository contains Jupyter Notebooks and web pages that act as clients of Linked Data APIs established as part of the Digital Atlas of Australia.
